@@ -1,0 +1,46 @@
+#!/bin/bash
+
+#if [[ ! -f ~/src/opt/local/bin/nasm ]] ; then
+#mkdir -p ~/src/opt/local/bin/
+#curl -O https://www.nasm.us/pub/nasm/releasebuilds/2.13.03/macosx/nasm-2.13.03-macosx.zip
+#unzip ~/nasm* */nasm
+#cp ~/nasm*/nasm ~/src/opt/local/bin/
+#fi
+
+
+cd ~
+mkdir src
+cd src
+git clone https://github.com/tianocore/edk2 -b UDK2018 --depth 1 UDK2018
+cd UDK2018
+svn co svn://svn.code.sf.net/p/cloverefiboot/code/ Clover
+make -C BaseTools/Source/C
+
+cd Clover
+if [[ ! -f ~/src/opt/local/bin/nasm ]] ; then
+./buildnasm.sh
+fi
+if [[ ! -f ~/src/opt/local/bin/gettext ]] ; then
+./buildgettext.sh
+fi
+if [[ ! -f ~/src/opt/local/bin/mtoc.NEW ]] ; then
+./buildmtoc.sh
+fi
+
+cd ..
+./edksetup.sh
+
+cd Clover
+cp -Rv Patches_for_UDK2018/* ../
+./ebuild.sh clean
+./ebuild.sh -fr
+#./ebuild.sh -fr --ia32 -xcode5 
+
+cd CloverPackage
+./makepkg
+./makeiso
+
+
+
+
+
