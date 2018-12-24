@@ -1,0 +1,11 @@
+#!/bin/sh
+
+
+#
+#  Created by Rodion Shingarev on 11.06.18.
+#
+
+diskutil mount $(ioreg -lw0 -p IODeviceTree | grep boot-log | sed -e 's/.*<//' -e 's/>//' | xxd -r -p | grep SelfDevicePath | awk -F'GPT,' '{print $2}' | cut -d, -f1) && open /Volumes/EFI
+
+
+

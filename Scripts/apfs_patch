@@ -1,0 +1,9 @@
+#!/bin/sh
+
+#  apfs.command
+#  
+#
+#  Created by Rodion Shingarev on 13.10.18.
+#
+sudo diskutil mount $(ioreg -lw0 -p IODeviceTree | grep boot-log | sed -e 's/.*<//' -e 's/>//' | xxd -r -p | grep SelfDevicePath | awk -F'GPT,' '{print $2}' | cut -d, -f1)
+sudo perl -i -pe 's|\x00\x74\x07\xb8\xff\xff|\x00\x90\x90\xb8\xff\xff|sg' /Volumes/EFI/EFI/CLOVER/drivers*/apfs.efi

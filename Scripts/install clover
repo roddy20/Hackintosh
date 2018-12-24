@@ -1,0 +1,11 @@
+#!/bin/sh
+
+uuid=$(ioreg -lw0 -p IODeviceTree | grep boot-log | sed -e 's/.*<//' -e 's/>//' | xxd -r -p | grep SelfDevicePath | awk -F'GPT,' '{print $2}' | cut -d, -f1);
+ESP=$(diskutil mount $uuid | awk  '{print $2}')
+cp -v ~/src/UDK2018/Clover/CloverPackage/sym/CloverCD/EFI/CLOVER/CLOVERX64.efi /Volumes/$ESP/EFI/CLOVER/;
+for driver in /Volumes/$ESP/EFI/CLOVER/drivers64/*
+do
+cp -v ~/src/UDK2018/Clover/CloverPackage/sym/CloverCD/EFI/CLOVER/drivers64/$(basename -- "$driver")  /Volumes/$ESP/EFI/CLOVER/drivers64/
+done
+diskutil umount $uuid;
+sudo cp -v ~/src/UDK2018/Clover/CloverPackage/sym/CloverCD/usr/local/bin/* /usr/local/bin/

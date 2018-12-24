@@ -1,0 +1,17 @@
+#!/bin/sh
+#  Created by Rodion Shingarev on 29.11.18.
+
+sudo echo 
+uuid=$(ioreg -lw0 -p IODeviceTree | grep boot-log | sed -e 's/.*<//' -e 's/>//' | xxd -r -p | grep SelfDevicePath | awk -F'GPT,' '{print $2}' | cut -d, -f1)
+LogoutHook=/.LogoutHook
+
+sudo defaults write com.apple.loginwindow LogoutHook $LogoutHook
+sudo defaults read com.apple.loginwindow
+
+echo $'#!/usr/bin/env bash\n\ndiskutil mount '$uuid' && nvram -x -p > /Volumes/EFI/nvram.plist' | sudo tee $LogoutHook
+sudo chmod +x $LogoutHook
+echo
+echo
+echo LogoutHook:
+cat $LogoutHook
+

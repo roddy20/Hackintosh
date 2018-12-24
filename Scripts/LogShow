@@ -1,0 +1,9 @@
+#!/bin/sh
+
+#  LogShow.sh
+#  
+#
+#  Created by Rodion Shingarev on 13/07/2018.
+#
+echo $1
+log show --predicate "processID == 0" --start "$(date -jf "%s" "$(sysctl kern.boottime | awk -F'[= |,]' '{print $6}')" +"%Y-%m-%d %T")" --debug
