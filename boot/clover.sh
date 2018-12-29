@@ -1,8 +1,11 @@
 #!/bin/sh
 #
 # https://raw.githubusercontent.com/roddy20/Hackintosh/master/boot/clover.sh
-curl -O https://raw.githubusercontent.com/roddy20/Hackintosh/master/boot/boot0af
-curl -O https://raw.githubusercontent.com/roddy20/Hackintosh/master/boot/boot1f32
+#curl -O https://raw.githubusercontent.com/roddy20/Hackintosh/master/boot/boot0af
+#curl -O https://raw.githubusercontent.com/roddy20/Hackintosh/master/boot/boot1f32
+wget -O boot0af https://raw.githubusercontent.com/roddy20/Hackintosh/master/boot/boot0af
+wget -O boot1f32 https://raw.githubusercontent.com/roddy20/Hackintosh/master/boot/boot1f32
+
 fdisk -l | grep FAT32
 echo "enter disk letter, ex.: a for sda"
 read s
