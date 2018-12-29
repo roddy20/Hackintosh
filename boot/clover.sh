@@ -16,4 +16,3 @@ dd if=/dev/sda1 count=1 of=origbs
 cp boot1f32 newbs
 dd if=origbs of=newbs skip=3 seek=3 bs=1 count=87 conv=notrunc
 dd if=newbs of=/dev/sda1 count=1
-echo "done"
