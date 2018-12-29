@@ -7,8 +7,7 @@ wget -O boot0af https://raw.githubusercontent.com/roddy20/Hackintosh/master/boot
 wget -O boot1f32 https://raw.githubusercontent.com/roddy20/Hackintosh/master/boot/boot1f32
 
 fdisk -l | grep FAT32
-echo "enter disk letter, ex.: a for sda"
-read s
+read -p "Disk? /dev/sd" s
 dd if=/dev/sd$s count=1 of=origMBR
 cp origMBR newMBR
 dd if=boot0af of=/newMBR bs=1 count=440 conv=notrunc
