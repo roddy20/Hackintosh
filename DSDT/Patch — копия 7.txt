@@ -1,0 +1,193 @@
+# ===========================CPU===========================
+# =========================================================
+
+into_all Processor parent_type scope replace_content
+begin \n
+end;
+
+# ===========================HPET==========================
+# =========================================================
+
+into device name_hid PNP0103 replace_content
+begin
+Name (_HID, EisaId ("PNP0103")) \n
+Name (_CID, EisaId ("PNP0C01")) \n
+Name (_STA, 0x0F) \n
+Name (_CRS, ResourceTemplate () \n
+{ \n
+IRQNoFlags (){0,8,11} \n
+Memory32Fixed (ReadWrite,0xFED00000,0x00000400) \n
+}) \n
+end;
+
+# ===========================IRQs==========================
+# =========================================================
+
+into device name_hid PNP0000 code_regex IRQNoFlags\s\(\)\n\s+\{(\d+)\} remove_matched;
+into device name_hid PNP0100 code_regex IRQNoFlags\s\(\)\n\s+\{(\d+)\} remove_matched;
+;into device name_hid PNP0B00 code_regex IRQNoFlags\s\(\)\n\s+\{(\d+)\} remove_matched;
+
+
+
+
+# ===========================Shutdown======================
+# =========================================================
+
+
+into method label _PTS code_regex_not If\s*\(LEqual\s*\(Arg0,\s*0x05\)\) code_regex ^((?:.|\n)*)$ replace_matched
+begin
+        If (LEqual (Arg0, 0x05)) {}\n
+        Else\n
+        {\n
+%1
+        }
+end;
+
+# ===========================Device Names==================
+# =========================================================
+
+into device label PCI0 insert
+begin
+Device (HDEF) {Name (_ADR, 0x001B0000)} \n
+Device (SBUS) {Name (_ADR, 0x001F0003)} \n
+Device (MCHC) {Name (_ADR, 0x001F0003)} \n
+end;
+
+into device label P0P2 insert
+begin
+Device (GFX0) {Name (_ADR, Zero) Name (_SUN, One)} \n
+Device (HDAU) {Name (_ADR, One)} \n
+end;
+
+into device label P0P9 insert
+begin
+Device (ETH0) {Name (_ADR, Zero)}
+end;
+
+into device label P0P1 insert
+begin
+Device (ETH1) {Name (_ADR, 0x00040000)}
+end;
+
+into device label EUSB set_label begin EHC1 end;
+into device label USBE set_label begin EHC2 end;
+into_all all code_regex EUSB replaceall_matched begin EHC1 end;
+into_all all code_regex USBE replaceall_matched begin EHC2 end;
+
+
+# ===========================SATA==========================
+# =========================================================
+into device label SATA replace_content begin Name (_ADR, 0x001F0002)  // _ADR: Address \n end;
+into device label SAT1 remove_entry;
+
+
+# ===========================Remove Legacy=================
+# =========================================================
+
+# RMEM, MEM 
+into device name_hid PNP0C01 remove_entry;
+#SPKR
+;into_all device name_hid PNP0800 remove_entry;
+#FDC
+into_all device name_hid PNP0700 remove_entry;
+#LPT
+into_all device name_hid PNP0400 remove_entry;
+into_all device name_hid PNP0401 remove_entry;
+#COPR
+into_all device name_hid PNP0C04 remove_entry;
+#PS2K
+;into_all device name_hid PNP0303 remove_entry;
+#UAR1
+#into_all device name_hid PNP0500 remove_entry;
+#into_all device name_hid PNP0501 remove_entry;
+#DMAD
+into_all device name_hid PNP0200 remove_entry;
+#TMR
+into_all device name_hid PNP0100 remove_entry;
+#PIC
+into_all device name_hid PNP0000 remove_entry;
+
+#—————————————Remove Name PR00
+into_all all code_regex Name\s\(PR00,\sPackage\s\(0x1B\)\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\}\) removeall_matched;
+
+#—————————————Remove Name PR01
+into_all all code_regex Name\s\(PR01,\sPackage\s\(0x0E\)\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\}\) removeall_matched;
+
+#—————————————Remove Name PRxx
+into_all all code_regex Name\s\(PR[0-9][0-9],\sPackage\s\(0x04\)\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\n.*\}\) removeall_matched;
+
+# Return ARxx
+into_all all code_regex If\s\(PICM\)\n.*\{\n.*(Return\s\(AR[0-9][0-9]\)).*\n.*\}\n.*\n.*Return\s\(PR[0-9][0-9]\) replaceall_matched begin %1 end;
+
+##LNKx
+into_all device name_hid PNP0C0F remove_entry; 
+
+into method label _PIC replace_content
+begin \n
+end;
+
+# ===========================OSVR=================
+# =========================================================
+
+
+into method label OSFL remove_entry;
+into definitionblock code_regex Name\s\(OSVR,\sOnes\) replace_matched begin
+Name (OSVR, Zero)\n
+Method (OSFL, 0, NotSerialized)\n
+{\n
+	Return (Zero)\n
+}\n
+end;
+
+
+# ===========================Remove Warnings===============
+# =========================================================
+
+
+into method label FGET code_regex Return\s\(Zero\) remove_matched;
+into method label FGET insert
+begin
+Return (Zero)
+end;
+into method label TGET code_regex Return\s\(Zero\) remove_matched;
+into method label TGET insert
+begin
+Return (Zero)
+end;
+into method label VGET code_regex Return\s\(Zero\) remove_matched;
+into method label VGET insert
+begin
+Return (Zero)
+end;
+into_all all code_regex (Acquire\s\(MUTE,\s0x)....\)
+replace_matched
+begin
+%1FFFF)
+end;
+
+# Remove PRWP
+into_all all code_regex Name\s\(PRWP,\sPackage\s\(0x02\)\n.*\{\n.*\n.*\n.*\}\) remove_matched;
+
+# Remove GPRW
+into method label GPRW remove_entry;
+into_all all code_regex (.*)\(GPRW\s\((.*)\)\) replaceall_matched begin %1 (Package (0x02)\n{\n %2 \n}) end;
+
+# Remove SS1-4
+into_all all code_regex Name\s\(SS[1-4].* removeall_matched;
+into_all all code_regex If\s\(SS[1-5]\)\n.*(\n.*Name.*\n.*\n.*\n.*\n.*\n.*\n.*\}\))\n.* replaceall_matched begin
+%1
+end;
+
+#—————————————Remove PRSx
+into_all all code_regex Name\s\(PRS[A-Z],.*\n.*\{\n.*IRQ.*\n.*\{.*\n.*\}\) removeall_matched;
+into_all all code_regex Alias\s\(PRS[A-Z],.* removeall_matched;
+
+
+into_all method label _S3D replace_content begin
+Return (0x3)
+end;
+
+
+
+
+

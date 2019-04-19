@@ -1,0 +1,63 @@
+#!/bin/sh
+
+#  performance.sh
+#  
+#
+#  Created by Rodion Shingarev on 16/03/2019.
+#  
+#PerformanceStateArray=$(ioreg -lw0 | grep PerformanceStateArray | awk '{print $6}')
+
+echo
+AICPMVers=$(ioreg -lw0 | grep AICPMVers | awk '{print $6}')
+printf "AICPMVers=0x%08X\n" $AICPMVers
+echo
+
+IFS=', ' read -r -a PerformanceStateArray <<< "$(ioreg -lw0 | grep PerformanceStateArray | awk '{print $6}' | tr -d \< | tr -d \> | tr -d \( | tr -d \) ) "
+
+for state in "${PerformanceStateArray[@]}"
+do
+read -r -a v <<< $(echo "$state" | awk '{for(i=1;i<length;i+=8) print substr($0,i,8)}' )
+
+s=${v[0]}
+x=$(echo 0x${s:6:2}${s:4:2}${s:2:2}${s:0:2})
+let CoreFreq=$x
+#bc -l <<< "$y / 1000"
+echo "CoreFreq" $CoreFreq MHz
+
+s=${v[1]}
+x=$(echo 0x${s:6:2}${s:4:2}${s:2:2}${s:0:2})
+let Power=$x
+echo "Power   " $(echo "scale=3; $Power/1000" | bc)  Watts
+
+s=${v[2]}
+x=$(echo 0x${s:6:2}${s:4:2}${s:2:2}${s:0:2})
+let TransitionLatency=$x
+
+s=${v[3]}
+x=$(echo 0x${s:6:2}${s:4:2}${s:2:2}${s:0:2})
+let BusMasterLatency=$x
+echo "Transition/BusMaster Latency " $TransitionLatency $BusMasterLatency microseconds
+
+s=${v[4]}
+x=$(echo 0x${s:6:2}${s:4:2}${s:2:2}${s:0:2})
+Control=$x
+
+s=${v[5]}
+x=$(echo 0x${s:6:2}${s:4:2}${s:2:2}${s:0:2})
+Status=$x
+echo "Control/Status " $Control $Status
+
+echo
+done
+
+#Each performance state entry contains six data fields as follows:
+#• CoreFreq. Indicates the core CPU operating frequency (in MHz).
+#• Power. Indicates the performance state’s maximum power dissipation (in milliWatts).
+#• TransitionLatency. Indicates the worst-case latency in microseconds that the CPU is unavailable
+#during a transition from any performance state to this performance state.
+#• BusMasterLatency. Indicates the worst-case latency in microseconds that Bus Masters are prevented
+#from accessing memory during a transition from any performance state to this performance state.
+#• Control. Indicates the value to be written to the Performance Control Register (PERF_CTRL) in order
+#to initiate a transition to the performance state.
+#• Status. Indicates the value that OSPM will compare to a value read from the Performance Status
+#Register (PERF_STATUS) to ensure that the transition to the performance state was successful. OSPM may always place the CPU in the lowest power state, but additional states are only available when indicated by the _PPC method.

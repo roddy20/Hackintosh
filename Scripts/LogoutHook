@@ -1,0 +1,6 @@
+#!/bin/sh
+#nvram -x -p > "/Volumes/"$(diskutil mount BD86CC3E-9377-4EE5-A378-1EEC4CAD3422 | awk '{ print $2 }' )"/nvram.plist"
+nvram -x -p > "/Volumes/"$(diskutil mount BD86CC3E-9377-4EE5-A378-1EEC4CAD3422 | awk '{ print $2 }' )"/nvram.plist"
+#diskutil mount $(ioreg -lw0 -p IODeviceTree | grep boot-log | sed 's/.*<\(.*\)>.*/\1/' | xxd -r -p | grep SelfDevicePath | sed 's/.*GPT,\([^,]*\),.*/\1/') && nvram -x -p > /Volumes/EFI/nvram.plist
+
+nvram -x -p > "/Volumes/"$(diskutil mount $(ioreg -lw0 -p IODeviceTree | grep boot-log | sed 's/.*<\(.*\)>.*/\1/' | xxd -r -p | grep SelfDevicePath | sed 's/.*GPT,\([^,]*\),.*/\1/') | awk '{ print $2 }' )"/nvram1.plist"

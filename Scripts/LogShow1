@@ -1,0 +1,4 @@
+#!/bin/sh
+
+#  LogShow.sh
+log show --predicate "processID == 0" --debug --last boot
